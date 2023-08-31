@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Invoice Maker</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body class="bg-light">
+    <div class="container pb-5 mb-5">
+      <form #invoiceForm="ngForm">
+        <div class="pb-3 my-5 row border-bottom">
+          <div class="col-12">
+            <h2>Invoice Maker</h2>
+          </div>
+        </div>
+        <div class="mb-4 row">
+          <div class="col-2">
+            <label class="form-label" for="clientId">Client</label>
+          </div>
+          <div class="col-5">
+            <select id="clientId" class="form-select" ngModel name="clientID">
+              <option
+                *ngFor="let clients of clientsList; let index = index"
+                [value]="clients._id"
+              >
+                {{ clients.name }}
+              </option>
+            </select>
+          </div>
+        </div>
+        <div class="mt-4 mb-4 row">
+          <div class="col-2"></div>
+          <div class="col-3">
+            <label for="invoiceDate" class="form-label">Invoice Date</label>
+            <input
+              [(ngModel)]="invoiceDate"
+              [ngModelOptions]="{ standalone: true }"
+              type="date"
+              class="form-control"
+              id="invoiceDate"
+            />
+          </div>
+          <div class="col-3">
+            <label for="netTerm" class="form-label">Net Term</label>
+            <select
+              id="netTerm"
+              class="form-select"
+              ngModel
+              name="net"
+              (change)="netChange(invoiceForm.value.net)"
+            >
+              <option
+                *ngFor="let net of netTerm; let netI = index"
+                [value]="net[1]"
+              >
+                {{ net[0] }}
+              </option>
+            </select>
+          </div>
+          <div class="col-3">
+            <label for="dueDate" class="form-label">Invoice Due Date</label>
+            <input
+              [(ngModel)]="invoiceDueDate"
+              name="invoiceDueDate"
+              type="date"
+              class="form-control"
+              id="dueDate"
+            />
+          </div>
+        </div>
+        <div class="mt-4 mb-4 row">
+          <div class="col-2">Billing Period</div>
+          <div class="col-3">
+            <label for="billingFrom" class="form-label">From</label>
+            <input
+              type="date"
+              [(ngModel)]="invoiceFromDate"
+              name="invoiceFromDate"
+              class="form-control"
+              id="billingFrom"
+            />
+          </div>
+          <div class="col-3">
+            <label for="billingTo" class="form-label">To</label>
+            <input
+              type="date"
+              [(ngModel)]="invoiceToDate"
+              name="invoiceToDate"
+              class="form-control"
+              id="billingTo"
+            />
+          </div>
+        </div>
+        <div class="mt-5 mb-4 row">
+          <div class="col-12">
+            <p class="mb-2"><strong>Invoice Items</strong></p>
+            <div class="border-0 card">
+              <div class="card-body">
+                <table class="table mb-0" [id]="inde + 'd'">
+                  <thead>
+                    <th class="border-bottom-0" scope="col">Item</th>
+                    <th class="border-bottom-0" scope="col">Quantity</th>
+                    <th class="border-bottom-0" scope="col">Rate</th>
+                    <th class="border-bottom-0" scope="col">Amount</th>
+                    <th class="border-bottom-0" scope="col">GST</th>
+                  </thead>
+                  <tbody
+                    *ngFor="
+                      let selectedItems1 of selectedItems;
+                      let selectI = index
+                    "
+                  >
+                    <tr [id]="inde + 'd'">
+                      <td class="border-bottom-0" [id]="selectedItems1.id">
+                        <select
+                          [id]="inde + 'items'"
+                          class="form-select"
+                          #itemid
+                          (change)="
+                            selectChange(
+                              itemid.value,
+                              selectI,
+                              tdsvalue.value,
+                              invoiceForm.value.clientID
+                            )
+                          "
+                        >
+                          <option
+                            *ngFor="
+                              let items of invoiceItems;
+                              let itemI = index
+                            "
+                            [value]="items?._id"
+                          >
+                            {{ items?.name }}
+                          </option>
+                        </select>
+                        <textarea
+                          class="mt-2 form-control"
+                          placeholder="Item Description"
+                        >
+                    {{ selectedItems1.desc }}
+                    </textarea
+                        >
+                      </td>
+                      <td class="border-bottom-0" [id]="selectedItems1.id">
+                        <input
+                          [id]="inde + 'qty'"
+                          #qty
+                          name="qty"
+                          (change)="
+                            qtyChange(
+                              invoiceForm,
+                              itemid.value,
+                              qty.value,
+                              selectI,
+                              invoiceForm?.value.clientID,
+                              tdsvalue.value,
+                              invoiceForm.value.clientID
+                            )
+                          "
+                          type="number"
+                          class="border-0 form-control text-end"
+                          style="max-width: 80px"
+                          [value]="selectedItems1.qty"
+                        />
+                      </td>
+                      <td class="border-bottom-0" [id]="selectedItems1.id">
+                        <input
+                          type="number"
+                          [id]="selectI + 'rate'"
+                          name="rate"
+                          class="border-0 form-control text-end"
+                          style="max-width: 150px"
+                          [value]="selectedItems1.rate"
+                        />
+                      </td>
+                      <td class="border-bottom-0" [id]="inde + 't4'">
+                        <input
+                          type="number"
+                          [id]="selectI + 'amount'"
+                          name="amount"
+                          readonly
+                          class="border-0 form-control text-end"
+                          style="max-width: 180px"
+                          [value]="selectedItems1.amount"
+                        />
+                      </td>
+                      <td class="border-bottom-0" [id]="inde + 't5'">
+                        <input
+                          type="number"
+                          [id]="selectI + 'gst'"
+                          name="gst"
+                          readonly
+                          class="border-0 form-control text-end"
+                          style="max-width: 180px"
+                          [value]="selectedItems1.gst"
+                        />
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mb-4 row">
+          <div class="col-6">
+            <a
+              href="javascript:;"
+              class="text-decoration-none"
+              (click)="addAnotherItem(tdsvalue.value)"
+              >+ Add another item</a
+            >
+          </div>
+          <div class="col-6">
+            <div class="border-0 card">
+              <div class="card-body">
+                <div class="mb-2 row">
+                  <div class="text-end col-8 fw-bold">Sub Total</div>
+                  <div class="col-4 text-end fw-bold">
+                    {{ subtotal | currency : "INR" }}
+                  </div>
+                </div>
+                <div class="mb-2 row">
+                  <div class="text-end col-8 fw-bold">Tax Total</div>
+                  <div class="col-4 text-end fw-bold">
+                    {{ taxtotal | currency : "INR" }}
+                  </div>
+                </div>
+                <div class="mb-2 row">
+                  <div class="text-end col-8 fw-bold">
+                    <select
+                      id="tds"
+                      class="ms-auto form-select w-50"
+                      style="min-width: 240px"
+                      #tdsvalue
+                      (change)="tdsChange(tdsvalue.value)"
+                    >
+                      <option
+                        *ngFor="let tds of tdsItems"
+                        [value]="tds.percentage"
+                      >
+                        {{ tds?.tax_name }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="col-4 text-end fw-bold">
+                    {{ tdsRate | currency : "INR" }}
+                  </div>
+                </div>
+                <div class="mb-2 row">
+                  <div class="text-end col-8 fw-bold">Balance Due</div>
+                  <div class="col-4 text-end fw-bold">
+                    {{ balanceDue | currency : "INR" }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mb-4 row">
+          <div class="col-6"></div>
+          <div class="col-6">
+            <div class="border-0 card">
+              <div class="card-body">
+                <p>Attach Document</p>
+
+                <input
+                  type="file"
+                  id="file"
+                  (change)="fileAdded($event)"
+                  class="btn btn-light w-50"
+                  style="opacity: calc(0)"
+                />
+                <label for="file">Upload Document</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card fixed-bottom">
+          <div class="card-body">
+            <div class="container">
+              <button
+                type="submit"
+                (click)="submitData(invoiceForm.value)"
+                class="btn btn-primary"
+              >
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </body>
+</html>
