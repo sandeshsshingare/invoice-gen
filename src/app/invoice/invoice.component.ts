@@ -181,7 +181,7 @@ export class InvoiceComponent {
     console.log(form.value);
     let clientIdd = form.value.clientID;
     let gst: number = 0;
-    console.log(this.invoiceItems);
+    console.log(itemId);
     let itemData: any = this.invoiceItems.filter((data) => data._id === itemId);
     console.log('item data');
     console.log(itemData);
@@ -200,6 +200,10 @@ export class InvoiceComponent {
     }
 
     let obj = this.calculateGst(itemData, qty, gst);
+    this.subtotal = 0;
+    this.taxtotal = 0;
+    this.balanceDue = 0;
+    this.tdsRate = 0;
 
     this.selectedItems[index].amount = obj.itemTotal;
     this.selectedItems[index].gst = obj.itemGst;
